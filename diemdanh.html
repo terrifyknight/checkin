@@ -3,196 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HỆ THỐNG ĐIỂM DANH THEO LÔ</title>
+  <title>CHECKIN</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="min-h-screen bg-slate-900 p-3 flex flex-col items-center justify-start">
+<body class="min-h-screen bg-slate-900 text-white p-2 sm:p-4 flex flex-col items-center justify-start">
 
-  <div class="w-full max-w-lg bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden mt-6">
-    
-    <!-- HEADER ĐIỂM DANH NỘI BỘ -->
-    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 text-white flex items-center justify-between">
-      <div>
-        <h1 class="text-lg font-bold tracking-tight">CỔNG ĐIỂM DANH THEO LÔ</h1>
-        <p class="text-emerald-100 text-[11px] mt-0.5">Quét liên tục nhiều người rồi nhấn Xác nhận gửi 1 lần.</p>
-      </div>
-      <button type="button" onclick="toggleCamera()" class="p-2.5 bg-white/20 hover:bg-white/30 rounded-full transition-all text-white flex items-center justify-center cursor-pointer">
-        <svg id="camIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-      </button>
-    </div>
-
-    <!-- KHUNG TRẠNG THÁI QUÉT NHANH -->
-    <div id="scanStatus" class="bg-emerald-950 border-b border-emerald-800 text-center py-2 text-xs text-emerald-400 font-semibold hidden">
-      ⚡ Đã thêm số CCCD vào danh sách chờ!
-    </div>
-
-    <div id="camContainer" class="bg-black overflow-hidden transition-all duration-300 max-h-0">
-      <div class="p-4 flex flex-col items-center">
-        <div id="qrReader" class="w-full rounded-2xl overflow-hidden bg-black max-w-[280px]"></div>
-      </div>
+  <div class="w-full max-w-md bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden mt-6">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 text-center">
+      <h1 class="text-xl font-bold tracking-tight text-white">CHECKIN</h1>
+      <p class="text-emerald-100 text-xs mt-1">Chọn nhà máy cần điểm danh và bật camera quét mã CCCD.</p>
     </div>
 
     <div class="p-6 space-y-5">
+      <!-- LỰA CHỌN NHÀ MÁY ĐỂ KHÓA TAB DỮ LIỆU TỔNG -->
       <div>
-        <label class="block text-sm font-bold text-slate-300 mb-1.5" for="ck_factory">Nhà máy phỏng vấn hôm nay *</label>
-        <select id="ck_factory" required class="w-full px-4 py-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white font-medium">
-          <option value="">-- Chọn Nhà máy đối chiếu --</option>
-          <option value="FUSHAN">FUSHAN</option>
+        <label class="block text-sm font-bold text-slate-300 mb-2">Nhà máy thực hiện điểm danh *</label>
+        <select id="factoryCode" class="w-full px-4 py-3 rounded-xl border border-slate-600 text-white font-semibold bg-slate-700 focus:outline-none focus:border-emerald-500">
+          <option value="">-- Chọn Nhà máy điểm danh --</option>
           <option value="HONHAI-FK">HONHAI-FK / FUKANG</option>
           <option value="LUXE QC2&3">LUXE QC2&3</option>
           <option value="LUXE QC1">LUXE QC1</option>
+          <option value="LUXE VT">LUXE VT</option>
           <option value="GTK NAM SƠN">GTK NAM SƠN</option>
+          <option value="ADTEK">ADTEK</option>
+          <option value="LENS">LENS</option>
+          <option value="WNC HÀ NAM">WNC HÀ NAM</option>
+          <option value="FUSHAN">FUSHAN</option>
           <option value="NEWWING">NEWWING</option>
+          <option value="FOX-QUẢNG NINH">FOX-QUẢNG NINH</option>
+          <option value="AMPHENOL">AMPHENOL</option>
+          <option value="BIEL VSIP">BIEL VSIP</option>
+          <option value="BIEL HD">BIEL HP</option>
         </select>
       </div>
 
-      <!-- DANH SÁCH CHỜ ĐIỂM DANH TẠM THỜI -->
-      <div class="border-t border-slate-700 pt-4">
-        <div class="flex items-center justify-between mb-2">
-          <label class="block text-sm font-bold text-slate-300">Danh sách chờ gửi (<span id="queueCount">0</span> người):</label>
-          <button type="button" onclick="clearQueue()" class="text-xs text-rose-400 font-semibold hover:underline">Xóa tất cả</button>
-        </div>
-        <div id="queueList" class="bg-slate-900 border border-slate-700 rounded-xl p-3 max-h-40 overflow-y-auto text-slate-400 font-mono text-sm space-y-1 text-center">
-          <div id="emptyTip" class="text-slate-500 italic py-4 text-xs">Chưa có dữ liệu. Hãy bật Camera quét mã QR để thêm nhanh lao động...</div>
-        </div>
+      <!-- KHU VỰC CAMERA QUÉT MÃ VẠCH / QR CCCD -->
+      <div class="bg-slate-950 rounded-2xl overflow-hidden p-4 border border-slate-700 flex flex-col items-center justify-center">
+        <div id="qrReader" class="w-full max-w-[260px] rounded-xl overflow-hidden bg-black"></div>
+        <button type="button" onclick="toggleCamera()" id="btnCam" class="mt-4 px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm font-medium transition-all">
+          Bật Camera Điểm Danh
+        </button>
       </div>
 
-      <button type="button" onclick="submitBulkCheckin()" id="btnBulkCheckin" class="w-full mt-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3 rounded-xl shadow-lg cursor-pointer flex items-center justify-center space-x-2">
-        <span>Xác nhận điểm danh hàng loạt</span>
-      </button>
+      <!-- KHỐI NHẬP THỦ CÔNG KHI THẺ CCCD BỊ MỜ/XƯỚC MÃ -->
+      <div class="border-t border-slate-700 pt-4">
+        <label class="block text-sm font-medium text-slate-400 mb-1.5">Hoặc nhập tay số CCCD:</label>
+        <div class="flex space-x-2">
+          <input type="text" id="manualCccd" placeholder="Nhập đủ 12 số" pattern="[0-9]{12}" class="flex-1 px-4 py-2 rounded-xl border border-slate-600 text-white bg-slate-700 focus:outline-none focus:border-emerald-500">
+          <button type="button" onclick="submitManualAttendance()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-all">Gửi</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- POPUP THÔNG BÁO KẾT QUẢ -->
-  <div id="successModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 backdrop-blur-sm z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl">
-      <div id="modalIcon" class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600 text-3xl">✓</div>
-      <h2 id="modalTitle" class="text-xl font-bold text-slate-800 mb-2">Kết quả đối chiếu</h2>
-      <div id="modalMsg" class="text-sm text-slate-600 mb-5 leading-relaxed bg-slate-50 p-3 rounded-xl border text-left font-medium whitespace-pre-line max-h-60 overflow-y-auto"></div>
-      <button onclick="closeModal()" class="w-full bg-slate-800 text-white font-medium py-2.5 rounded-xl">Đóng thông báo</button>
+  <!-- POPUP THÔNG BÁO TRẠNG THÁI REAL-TIME -->
+  <div id="resultModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 backdrop-blur-sm z-50">
+    <div id="modalBox" class="bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-slate-700 shadow-2xl">
+      <div id="modalIcon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">✓</div>
+      <h2 id="modalTitle" class="text-xl font-bold text-white mb-2">Thành Công</h2>
+      <p id="modalMsg" class="text-sm text-slate-300 mb-5 leading-relaxed bg-slate-900/50 p-4 rounded-xl border border-slate-700 font-medium whitespace-pre-line text-center"></p>
+      <button onclick="closeModal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition-all">Tiếp tục điểm danh</button>
     </div>
   </div>
 
   <script>
-    // Link Web App của file Google Sheets Tổng hợp
-    const API_URL = "https://script.google.com/macros/s/AKfycbxEuShit4dCUQI_eL-Bw08QdFwU9h40drSMywOdC4TR1XO9NVbUadOOgWSs8PDSUCJm/exec"; 
+    // BẮT BUỘC: Thay thế đường link Web App lấy từ "File Tổng" của bạn vào đây
+    const API_URL = "LÀM_THEO_BƯỚC_TRIỂN_KHAI_Ở_FILE_TỔNG_ĐỂ_LẤY_LINK_DÁN_VÀO_ĐÂY"; 
 
     let html5QrCode = null, isCamOpen = false;
-    let cccdQueue = []; 
+    const factorySelect = document.getElementById('factoryCode');
 
     function toggleCamera() {
-      const container = document.getElementById('camContainer'), icon = document.getElementById('camIcon');
+      if (!factorySelect.value) {
+        alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh trước khi mở Camera!");
+        return;
+      }
+      const btnCam = document.getElementById('btnCam');
       if (!isCamOpen) {
-        container.style.maxHeight = "400px"; html5QrCode = new Html5Qrcode("qrReader");
-        html5QrCode.start({ facingMode: "environment" }, { fps: 25, qrbox: 230 }, (msg) => { handleDecodedText(msg); }, (err) => {}).then(() => { isCamOpen = true; icon.innerHTML = '<path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke="currentColor"></path>'; });
-      } else { stopCamera(); }
+        html5QrCode = new Html5Qrcode("qrReader");
+        html5QrCode.start(
+          { facingMode: "environment" }, 
+          { fps: 25, qrbox: 220 }, 
+          (rawText) => { 
+            processQrData(rawText); 
+          }, 
+          (err) => {}
+        ).then(() => { 
+          isCamOpen = true; 
+          btnCam.innerText = "Tắt Camera";
+          btnCam.classList.replace('bg-slate-700', 'bg-red-600');
+        }).catch(err => alert("Không khởi động được camera: " + err));
+      } else { 
+        stopCamera(); 
+      }
     }
 
     function stopCamera() {
+      const btnCam = document.getElementById('btnCam');
       if (html5QrCode && isCamOpen) {
-        html5QrCode.stop().then(() => { document.getElementById('camContainer').style.maxHeight = "0px"; isCamOpen = false; });
+        html5QrCode.stop().then(() => { 
+          isCamOpen = false; 
+          btnCam.innerText = "Bật Camera Điểm Danh";
+          btnCam.classList.replace('bg-red-600', 'bg-slate-700');
+        });
       }
     }
 
-    function handleDecodedText(rawText) {
-      if (!rawText) return;
+    // Tách chuỗi dữ liệu thô từ QR CCCD gắn chíp
+    function processQrData(rawText) {
+      stopCamera(); // Tạm khóa camera tránh quét lặp liên tục khi đang đợi API
       const parts = rawText.split('|');
-      let scannedCccd = "";
-
-      if (parts.length > 0 && parts[0].length === 12 && /^\d+$/.test(parts[0])) {
-        scannedCccd = parts[0].trim();
+      const cccd = (parts.length >= 1) ? parts[0].trim() : "";
+      if (cccd.length === 12) {
+        executeAttendanceApi(cccd);
       } else {
-        const cleanText = rawText.trim();
-        if (cleanText.length === 12 && /^\d+$/.test(cleanText)) scannedCccd = cleanText;
-      }
-
-      if (scannedCccd) {
-        if (!cccdQueue.includes(scannedCccd)) {
-          if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(80); 
-          cccdQueue.push(scannedCccd);
-          updateQueueUI();
-          
-          const statusBox = document.getElementById('scanStatus');
-          statusBox.classList.remove('hidden');
-          setTimeout(() => statusBox.classList.add('hidden'), 1000);
-        }
+        showResultModal(false, "Lỗi Mã QR", "Mã QR quét được không phải định dạng thẻ CCCD gắn chíp hợp lệ.");
       }
     }
 
-    function updateQueueUI() {
-      const listDiv = document.getElementById('queueList');
-      const countSpan = document.getElementById('queueCount');
-      countSpan.innerText = cccdQueue.length;
-
-      if (cccdQueue.length === 0) {
-        listDiv.innerHTML = '<div id="emptyTip" class="text-slate-500 italic py-4 text-xs">Chưa có dữ liệu. Hãy bật Camera quét mã QR để thêm nhanh lao động...</div>';
-        return;
-      }
-
-      listDiv.innerHTML = cccdQueue.map((cccd, index) => `
-        <div class="flex items-center justify-between bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 my-1">
-          <span>${index + 1}. ${cccd}</span>
-          <button type="button" onclick="removeSingleRow(${index})" class="text-rose-400 text-xs font-bold hover:text-rose-500 px-1">✕</button>
-        </div>
-      `).join('');
+    // Xử lý khi nhân sự bấm nút Gửi bằng số CCCD nhập tay
+    function submitManualAttendance() {
+      if (!factorySelect.value) { alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh!"); return; }
+      const cccdVal = document.getElementById('manualCccd').value.trim();
+      if (cccdVal.length !== 12 || isNaN(cccdVal)) { alert("⚠️ Số CCCD nhập tay phải bao gồm đúng 12 con số!"); return; }
+      executeAttendanceApi(cccdVal);
     }
 
-    function removeSingleRow(index) {
-      cccdQueue.splice(index, 1);
-      updateQueueUI();
-    }
-
-    function clearQueue() {
-      cccdQueue = [];
-      updateQueueUI();
-    }
-
-    function submitBulkCheckin() {
-      const factory = document.getElementById('ck_factory').value;
-      if (!factory) { alert("Vui lòng chọn Nhà máy đối chiếu trước khi gửi lô!"); return; }
-      if (cccdQueue.length === 0) { alert("Danh sách chờ trống. Vui lòng quét ít nhất 1 CCCD!"); return; }
-
-      const btn = document.getElementById('btnBulkCheckin');
-      btn.disabled = true; btn.innerHTML = "⏳ Đang đồng bộ " + cccdQueue.length + " hồ sơ...";
-      stopCamera();
-
-      const payload = {
-        action: 'checkin_bulk',
-        factoryName: factory,
-        cccdList: cccdQueue
-      };
+    // Kết nối gọi API tới trục dữ liệu File Tổng
+    function executeAttendanceApi(cccdNumber) {
+      document.getElementById('manualCccd').value = ""; // Clear hộp nhập dữ liệu tay
       
-      fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
-      .then(res => res.json()).then(data => {
-        btn.disabled = false; btn.innerHTML = "<span>Xác nhận điểm danh hàng loạt</span>";
+      const payload = {
+        action: 'attendance',
+        factoryName: factorySelect.value,
+        cccd: cccdNumber
+      };
+
+      // Hiển thị màn hình chờ đồng bộ tạm thời
+      showResultModal(true, "⏳ Đang kiểm tra", "Đang tra soát danh sách và đối chiếu chéo nhà thầu trên File Tổng...");
+
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
         if (data && data.success) {
-          cccdQueue = []; 
-          updateQueueUI();
-          showModal(true, "Kết quả xử lý theo lô", data.message);
+          showResultModal(true, "Thành Công", data.message);
         } else {
-          showModal(false, "Thao Tác Thất Bại", data.message);
+          showResultModal(false, "Thất Bại", data.message);
         }
       })
-      .catch(err => { 
-        btn.disabled = false; btn.innerHTML = "<span>Xác nhận điểm danh hàng loạt</span>";
-        showModal(false, "Lỗi kết nối mạng", "Không thể truyền gói dữ liệu theo lô lên Google Sheets Tổng."); 
+      .catch(err => {
+        showResultModal(false, "Lỗi Kết Nối", "Không thể hoàn thành điểm danh do mất tín hiệu đường truyền Internet.");
       });
     }
 
-    function showModal(isSuccess, title, msg) {
-      const icon = document.getElementById('modalIcon');
-      if(isSuccess) {
-        icon.className = "w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600 text-3xl"; icon.innerText = "✓";
+    function showResultModal(isSuccess, title, msg) {
+      const modalIcon = document.getElementById('modalIcon');
+      const modalBox = document.getElementById('modalBox');
+      
+      if (isSuccess && title !== "⏳ Đang kiểm tra") {
+        modalIcon.innerText = "✓";
+        modalIcon.className = "w-16 h-16 bg-emerald-900/50 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl border border-emerald-500";
+        modalBox.className = "bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-emerald-500/50 shadow-2xl";
+      } else if (title === "⏳ Đang kiểm tra") {
+        modalIcon.innerText = "⏳";
+        modalIcon.className = "w-16 h-16 bg-amber-900/50 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl border border-amber-500";
+        modalBox.className = "bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-amber-500/50 shadow-2xl";
       } else {
-        icon.className = "w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-3 text-rose-600 text-3xl"; icon.innerText = "✕";
+        modalIcon.innerText = "✕";
+        modalIcon.className = "w-16 h-16 bg-red-900/50 text-red-400 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl border border-red-500";
+        modalBox.className = "bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-red-500/50 shadow-2xl";
       }
-      document.getElementById('modalTitle').innerText = title; document.getElementById('modalMsg').innerText = msg;
-      document.getElementById('successModal').classList.remove('hidden');
+      
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalMsg').innerText = msg;
+      document.getElementById('resultModal').classList.remove('hidden');
     }
-    function closeModal() { document.getElementById('successModal').classList.add('hidden'); }
+
+    function closeModal() {
+      document.getElementById('resultModal').classList.add('hidden');
+    }
   </script>
 </body>
 </html>
