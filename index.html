@@ -44,9 +44,23 @@
       <!-- KHU VỰC CAMERA QUÉT MÃ VẠCH / QR CCCD -->
       <div class="bg-slate-950 rounded-2xl overflow-hidden p-4 border border-slate-700 flex flex-col items-center justify-center">
         <div id="qrReader" class="w-full max-w-[260px] rounded-xl overflow-hidden bg-black"></div>
-        <button type="button" onclick="toggleCamera()" id="btnCam" class="mt-4 px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm font-medium transition-all">
-          Bật Camera Điểm Danh
-        </button>
+        
+        <!-- Cụm nút bấm điều khiển Camera và Chọn Ảnh -->
+        <div class="w-full grid grid-cols-2 gap-2 mt-4">
+          <button type="button" onclick="toggleCamera()" id="btnCam" class="w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold transition-all text-center">
+            Bật Camera Điểm Danh
+          </button>
+          <button type="button" onclick="switchCamera()" id="btnSwitch" class="w-full px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl text-xs font-semibold transition-all text-center">
+            Đổi Camera 🔄
+          </button>
+        </div>
+        
+        <div class="w-full mt-2.5">
+          <label for="uploadImageInput" class="w-full cursor-pointer inline-flex items-center justify-center px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-700 rounded-xl text-xs font-medium text-slate-300 transition-all text-center">
+            📁 Tải Ảnh QR Lên Điểm Danh
+          </label>
+          <input type="file" id="uploadImageInput" accept="image/*" onchange="checkinByImage(event)" class="hidden" />
+        </div>
       </div>
 
       <!-- KHỐI NHẬP THỦ CÔNG KHI THẺ CCCD BỊ MỜ/XƯỚC MÃ -->
@@ -231,34 +245,32 @@
     function checkinByImage(event) {
       if (!factorySelect.value) {
         alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh trước khi tải ảnh!");
-        event.target.value = ""; // Reset tệp chọn
+        event.target.value = ""; 
         return;
       }
 
       const file = event.target.files[0];
       if (!file) return;
 
-      // Nếu camera đang mở thì tạm thời đóng lại để tránh xung đột luồng xử lý
       if (isCamOpen) {
         stopCamera();
       }
 
       showResultModal(true, "⏳ Đang quét ảnh", "Đang phân tích cấu trúc hình ảnh để tìm mã QR...");
 
-      // Sử dụng thực thể đọc ảnh tĩnh độc lập từ thư viện Html5Qrcode
       const imageScanner = new Html5Qrcode("qrReader");
       imageScanner.scanFile(file, true)
         .then(rawText => {
-          closeModal(); // Đóng modal chờ quét ảnh
+          closeModal(); 
           const parts = rawText.split('|');
           const cccd = (parts.length >= 1) ? parts[0].trim() : "";
           
           if (cccd.length === 12) {
-            executeAttendanceApi(cccd); // Đủ 12 số CCCD thì tiến hành điểm danh
+            executeAttendanceApi(cccd); 
           } else {
             showResultModal(false, "Lỗi Mã QR", "Mã QR trong file ảnh không chứa định dạng CCCD gắn chíp hợp lệ.");
           }
-          event.target.value = ""; // Giải phóng input file
+          event.target.value = ""; 
         })
         .catch(err => {
           event.target.value = "";
