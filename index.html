@@ -7,15 +7,40 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    /* Ẩn hoàn toàn các nút bấm tự sinh thô kệch của thư viện html5-qrcode */
+    #qrReader button { display: none !important; }
+    #qrReader img { display: none !important; }
+  </style>
 </head>
 <body class="min-h-screen bg-slate-900 text-white p-2 sm:p-4 flex flex-col items-center justify-start">
 
   <div class="w-full max-w-md bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden mt-6">
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 text-center">
-      <h1 class="text-xl font-bold tracking-tight text-white">CHECKIN</h1>
-      <p class="text-emerald-100 text-xs mt-1">Chọn nhà máy cần điểm danh và bật camera quét mã CCCD.</p>
+    <!-- Header tích hợp 2 nút bấm điều khiển chủ động -->
+    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 flex items-center justify-between text-center relative">
+      
+      <!-- BÊN TRÁI: Nút hình bức ảnh (Bấm để tải ảnh QR từ máy/Zalo) -->
+      <label class="cursor-pointer p-2.5 bg-white/10 hover:bg-white/20 active:scale-95 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center" title="Tải ảnh QR từ máy / Zalo">
+        <input type="file" id="uploadImageInput" accept="image/*" onchange="checkinByImage(event)" class="hidden" />
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </label>
+
+      <!-- GIỮA: Tiêu đề CHECKIN -->
+      <div class="flex-1">
+        <h1 class="text-2xl font-black tracking-wider text-white">CHECKIN</h1>
+        <p class="text-emerald-100 text-[10px] mt-0.5 opacity-90"></p>
+      </div>
+
+      <!-- BÊN PHẢI: Nút ấn hình mã QR (Bấm để bật / tắt Camera điểm danh) -->
+      <button type="button" onclick="toggleCamera()" class="p-2.5 bg-white/10 hover:bg-white/20 active:scale-95 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center" title="Bật / Tắt Camera Quét">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h.01M9.21 18.57l.707.707M15.55 6.343l.707-.707M4.929 19.071l.707-.707M19.071 4.929l-.707.707M4 12h1m8-4a4 4 0 11-8 0 4 4 0 018 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h2v2H7V7zm8 0h2v2h-2V7zm0 8h2v2h-2v-2z" />
+        </svg>
+      </button>
     </div>
 
     <div class="p-6 space-y-5">
@@ -41,26 +66,16 @@
         </select>
       </div>
 
-      <!-- KHU VỰC CAMERA QUÉT MÃ VẠCH / QR CCCD -->
-      <div class="bg-slate-950 rounded-2xl overflow-hidden p-4 border border-slate-700 flex flex-col items-center justify-center">
-        <div id="qrReader" class="w-full max-w-[260px] rounded-xl overflow-hidden bg-black"></div>
-        
-        <!-- Cụm nút bấm điều khiển Camera và Chọn Ảnh -->
-        <div class="w-full grid grid-cols-2 gap-2 mt-4">
-          <button type="button" onclick="toggleCamera()" id="btnCam" class="w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold transition-all text-center">
-            Bật Camera Điểm Danh
-          </button>
-          <button type="button" onclick="switchCamera()" id="btnSwitch" class="w-full px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl text-xs font-semibold transition-all text-center">
-            Đổi Camera 🔄
-          </button>
+      <!-- KHU VỰC CAMERA CHỜ KHÔNG TỰ ĐỘNG BẬT -->
+      <div class="bg-slate-950 rounded-2xl overflow-hidden p-4 border border-slate-700 flex flex-col items-center justify-center relative">
+        <div id="qrReader" class="w-full max-w-[260px] rounded-xl overflow-hidden bg-black aspect-square flex items-center justify-center border border-slate-800 text-center text-slate-500 text-xs px-4 leading-relaxed">
+          Chưa bật camera.<br>Chọn nhà máy và bấm biểu tượng QR [📷] góc trên bên phải để bắt đầu quét.
         </div>
         
-        <div class="w-full mt-2.5">
-          <label for="uploadImageInput" class="w-full cursor-pointer inline-flex items-center justify-center px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-700 rounded-xl text-xs font-medium text-slate-300 transition-all text-center">
-            📁 Tải Ảnh QR Lên Điểm Danh
-          </label>
-          <input type="file" id="uploadImageInput" accept="image/*" onchange="checkinByImage(event)" class="hidden" />
-        </div>
+        <!-- Nút đổi cam nhỏ gọn tinh tế xuất hiện khi camera mở -->
+        <button id="btnSwitch" type="button" onclick="switchCamera()" class="absolute bottom-6 right-6 p-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-600 rounded-xl text-xs font-semibold transition-all shadow-md hidden flex items-center gap-1">
+          Đổi Cam 🔄
+        </button>
       </div>
 
       <!-- KHỐI NHẬP THỦ CÔNG KHI THẺ CCCD BỊ MỜ/XƯỚC MÃ -->
@@ -85,7 +100,6 @@
   </div>
 
   <script>
-    // Nhớ giữ nguyên link Web App từ File Tổng của bạn ở đây:
     const API_URL = "https://script.google.com/macros/s/AKfycbwg7SmjbCvwbUjgTx0kF125BQTUMZCs3pZkJ9t1UGLK0eJ-cj5z_f6LmKrns4REW_93/exec"; 
 
     let html5QrCode = null;
@@ -121,16 +135,16 @@
     }
     window.addEventListener('DOMContentLoaded', initCameraList);
 
-    // HÀM BẬT / TẮT CAMERA
+    // HÀM CHỦ ĐỘNG BẬT / TẮT CAMERA THEO NÚT ẤN QR CODE TRÊN HEADER
     async function toggleCamera() {
       if (!factorySelect.value) {
-        alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh trước khi mở Camera!");
+        alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh trước khi kích hoạt Camera!");
         return;
       }
       
       if (!isCamOpen) {
         if (validBackCameras.length === 0) {
-          alert("Không tìm thấy camera sau khả dụng.");
+          alert("Không tìm thấy cụm camera sau khả dụng trên thiết bị.");
           return;
         }
         startScanning(validBackCameras[currentCamIndex].id);
@@ -141,7 +155,6 @@
 
     // LUỒNG QUÉT CAMERA TRỰC TIẾP
     function startScanning(cameraId) {
-      const btnCam = document.getElementById('btnCam');
       if (!html5QrCode) { html5QrCode = new Html5Qrcode("qrReader"); }
 
       const config = {
@@ -161,43 +174,43 @@
         (err) => {}
       ).then(() => {
         isCamOpen = true;
-        btnCam.innerText = "Tắt Camera";
-        btnCam.classList.replace('bg-slate-700', 'bg-red-600');
+        if (validBackCameras.length > 1) {
+          document.getElementById('btnSwitch').classList.remove('hidden');
+        }
         setupZoomControls();
       }).catch(err => {
         html5QrCode.start(cameraId, { fps: 30, qrbox: 180 }, (rawText) => { processQrData(rawText); }, (err) => {})
         .then(() => {
           isCamOpen = true;
-          btnCam.innerText = "Tắt Camera";
-          btnCam.classList.replace('bg-slate-700', 'bg-red-600');
+          if (validBackCameras.length > 1) {
+            document.getElementById('btnSwitch').classList.remove('hidden');
+          }
           setupZoomControls();
-        }).catch(e => alert("Không thể mở ống kính: " + e));
+        }).catch(e => alert("Không thể khởi chạy camera: " + e));
       });
     }
 
     // DỪNG CAMERA AN TOÀN
     async function stopCamera() {
-      const btnCam = document.getElementById('btnCam');
       const zoomContainer = document.getElementById('zoomContainer');
       if (zoomContainer) zoomContainer.remove();
+      document.getElementById('btnSwitch').classList.add('hidden');
 
       if (html5QrCode && isCamOpen) {
         try {
           await html5QrCode.stop();
           isCamOpen = false;
-          btnCam.innerText = "Bật Camera Điểm Danh";
-          btnCam.classList.replace('bg-red-600', 'bg-slate-700');
+          document.getElementById('qrReader').innerHTML = `Chưa bật camera.<br>Chọn nhà máy và bấm biểu tượng QR [📷] góc trên bên phải để bắt đầu quét.`;
         } catch (err) {
           console.log("Lỗi khi dừng camera: " + err);
         }
       }
     }
 
-    // ĐỔI QUA LẠI GIỮA CÁC ỐNG KÍNH SAU
+    // ĐỔI QỦA LẠI GIỮA CÁC ỐNG KÍNH SAU
     async function switchCamera() {
-      if (!isCamOpen) { alert("Vui lòng Bật Camera trước."); return; }
-      if (validBackCameras.length <= 1) { alert("Thiết bị chỉ nhận diện được 1 camera sau phù hợp."); return; }
-
+      if (!isCamOpen) return;
+      
       const zoomContainer = document.getElementById('zoomContainer');
       if (zoomContainer) zoomContainer.remove();
       
@@ -208,7 +221,7 @@
       startScanning(validBackCameras[currentCamIndex].id);
     }
 
-    // THANH KÉO ZOOM TỰ ĐỘNG
+    // THANH KÉO ZOOM TỰ ĐỘNG TẠO RA DƯỚI KHUNG QUÉT
     function setupZoomControls() {
       const oldZoom = document.getElementById('zoomContainer');
       if (oldZoom) oldZoom.remove();
@@ -223,11 +236,11 @@
           const stepZoom = capabilities.zoom.step || 0.1;
 
           const zoomHtml = `
-            <div id="zoomContainer" class="w-full max-w-sm mx-auto mt-3 px-4 flex items-center gap-3">
-              <span class="text-xs font-semibold text-slate-400">1x</span>
+            <div id="zoomContainer" class="w-full max-w-[260px] mx-auto mt-3 px-2 flex items-center gap-3">
+              <span class="text-xs font-semibold text-slate-500">1x</span>
               <input type="range" id="zoomSlider" min="${minZoom}" max="${maxZoom}" step="${stepZoom}" value="${minZoom}" 
-                     class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
-              <span class="text-xs font-semibold text-slate-400">${Math.round(maxZoom)}x</span>
+                     class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+              <span class="text-xs font-semibold text-slate-500">${Math.round(maxZoom)}x</span>
             </div>
           `;
           
@@ -239,9 +252,7 @@
       } catch (err) { console.log(err); }
     }
 
-    // =========================================================================
     // HÀM QUÉT MÃ QR TỪ FILE ẢNH DO NGƯỜI DÙNG TẢI LÊN
-    // =========================================================================
     function checkinByImage(event) {
       if (!factorySelect.value) {
         alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh trước khi tải ảnh!");
@@ -274,7 +285,7 @@
         })
         .catch(err => {
           event.target.value = "";
-          showResultModal(false, "Không đọc được mã", "Hệ thống không tìm thấy mã QR nào trong bức ảnh này. Vui lòng chụp rõ nét hơn hoặc cắt bớt vùng thừa xung quanh mã QR.");
+          showResultModal(false, "Không đọc được mã", "Hệ thống không tìm thấy mã QR nào trong ảnh. Hãy chắc chắn ảnh rõ nét, vuông góc và không bị lóa mờ.");
         });
     }
 
