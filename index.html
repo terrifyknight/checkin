@@ -76,85 +76,30 @@
 
     let html5QrCode = null;
     let isCamOpen = false;
-    let videoDevices = []; // Danh sách này sẽ CHỈ CHỨA CAMERA SAU
-    let currentDeviceIndex = 0;
     const factorySelect = document.getElementById('factoryCode');
 
-    // HÀM LỌC CHỈ LẤY CAMERA SAU NGAY KHI TẢI TRANG
-    function initCameraList() {
-      Html5Qrcode.getCameras().then(devices => {
-        if (devices && devices.length > 0) {
-          // Lọc nghiêm ngặt: Chỉ giữ lại các camera có nhãn chứa từ khóa mặt sau
-          // Hoặc loại bỏ các camera có tên chứa 'front', 'user', 'trước'
-          videoDevices = devices.filter(d => {
-            const label = d.label.toLowerCase();
-            return !label.includes('front') && !label.includes('user') && !label.includes('trước');
-          });
-
-          // Nếu bộ lọc quá nghiêm ngặt không giữ được cam nào, trả lại danh sách gốc để tránh lỗi
-          if (videoDevices.length === 0) {
-            videoDevices = devices;
-          }
-          
-          // Thử tìm camera có chữ 'environment' hoặc 'back' làm mặc định ban đầu
-          let backIndex = videoDevices.findIndex(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('environment'));
-          currentDeviceIndex = backIndex !== -1 ? backIndex : 0;
-        }
-      }).catch(err => console.log("Chưa lấy được danh sách camera lúc khởi tạo: " + err));
-    }
-    window.addEventListener('DOMContentLoaded', initCameraList);
-
-    // Hàm Bật/Tắt Camera
-    async function toggleCamera() {
-      if (!factorySelect.value) {
-        alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh trước khi mở Camera!");
-        return;
-      }
-      
-      if (!isCamOpen) {
-        if (videoDevices.length === 0) {
-          try {
-            const devices = await Html5Qrcode.getCameras();
-            videoDevices = devices.filter(d => {
-              const label = d.label.toLowerCase();
-              return !label.includes('front') && !label.includes('user') && !label.includes('trước');
-            });
-            if (videoDevices.length === 0) videoDevices = devices;
-          } catch (err) {
-            alert("Không thể truy cập danh sách Camera: " + err);
-            return;
-          }
-        }
-        
-        if (videoDevices.length > 0) {
-          startScanning(videoDevices[currentDeviceIndex].id);
-        } else {
-          alert("Không tìm thấy camera khả dụng.");
-        }
-      } else {
-        stopCamera();
-      }
-    }
-
-    // Hàm khởi động quét và gọi tính năng zoom
-    function startScanning(cameraId) {
+    // Hàm khởi động quét sử dụng cấu hình facingMode trực tiếp
+    function startScanning() {
       const btnCam = document.getElementById('btnCam');
       
       if (!html5QrCode) {
         html5QrCode = new Html5Qrcode("qrReader");
       }
 
+      // Ép cấu hình sử dụng camera sau và độ phân giải cao để nhìn rõ mã QR nhỏ
       const config = {
         fps: 30,
         qrbox: 180,
         videoConstraints: {
+          facingMode: "environment",
           width: { ideal: 1920 },
           height: { ideal: 1080 }
         }
       };
 
+      // Gọi camera bằng chuỗi định hướng "environment" (camera sau) thay vì dùng ID thiết bị
       html5QrCode.start(
-        cameraId,
+        { facingMode: "environment" },
         config,
         (rawText) => { processQrData(rawText); },
         (err) => {}
@@ -163,11 +108,25 @@
         btnCam.innerText = "Tắt Camera";
         btnCam.classList.replace('bg-slate-700', 'bg-red-600');
         
-        // Thiết lập thanh trượt Zoom nếu camera hỗ trợ
+        // Cấu hình thanh kéo zoom nếu thiết bị hỗ trợ điều khiển luồng nâng cao
         setupZoomControls();
       }).catch(err => {
-        alert("Lỗi khởi động ống kính này, vui lòng bấm 'Đổi Camera': " + err);
+        alert("Lỗi kết nối camera sau. Vui lòng kiểm tra quyền truy cập camera của trình duyệt: " + err);
       });
+    }
+
+    // Hàm bật/tắt camera chính từ giao diện
+    function toggleCamera() {
+      if (!factorySelect.value) {
+        alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh trước khi mở Camera!");
+        return;
+      }
+      
+      if (!isCamOpen) {
+        startScanning();
+      } else {
+        stopCamera();
+      }
     }
 
     // Hàm dừng camera an toàn
@@ -188,32 +147,7 @@
       }
     }
 
-    // ĐỔI CAMERA (Chỉ đổi vòng quanh các camera sau đã lọc)
-    async function switchCamera() {
-      if (!isCamOpen) {
-        alert("Vui lòng Bật Camera trước khi thực hiện đổi ống kính.");
-        return;
-      }
-      if (videoDevices.length <= 1) {
-        alert("Thiết bị này chỉ nhận diện được 1 ống kính camera sau.");
-        return;
-      }
-
-      const zoomContainer = document.getElementById('zoomContainer');
-      if (zoomContainer) zoomContainer.remove();
-      
-      // Tắt hẳn camera cũ
-      await html5QrCode.stop();
-      isCamOpen = false;
-
-      // Nhảy sang ống kính sau tiếp theo
-      currentDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
-      
-      // Mở ống kính mới
-      startScanning(videoDevices[currentDeviceIndex].id);
-    }
-
-    // TẠO THANH TRƯỢT ZOOM GIỐNG APP CHỤP ẢNH
+    // TẠO THANH TRƯỢT ZOOM TỰ ĐỘNG KHỚP VỚI THIẾT BỊ
     function setupZoomControls() {
       const oldZoom = document.getElementById('zoomContainer');
       if (oldZoom) oldZoom.remove();
@@ -245,11 +179,11 @@
           });
         }
       } catch (err) {
-        console.log("Trình duyệt/Thiết bị này không cho phép kéo zoom trực tiếp bằng code: ", err);
+        console.log("Thiết bị hoặc trình duyệt không hỗ trợ API kiểm soát zoom trực tiếp: ", err);
       }
     }
 
-    // Các hàm xử lý kết nối dữ liệu giữ nguyên
+    // Các hàm xử lý kết nối dữ liệu và gọi API tới File Tổng
     function processQrData(rawText) {
       if (html5QrCode && isCamOpen) {
         stopCamera().then(() => {
