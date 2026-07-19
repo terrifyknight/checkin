@@ -23,11 +23,8 @@
     <!-- Header -->
     <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 flex items-center justify-between text-center relative">
       
-      <!-- BÊN TRÁI: Nút hình bức ảnh (Thay link Pinterest của bạn vào mục src) -->
-      <label class="cursor-pointer p-1 bg-white/10 hover:bg-white/20 active:scale-95 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center w-11 h-11 overflow-hidden" title="Tải ảnh QR từ máy / Zalo">
-        <input type="file" id="uploadImageInput" accept="image/*" onchange="checkinByImage(event)" class="hidden" />
-        <img src="https://assets.pinterest.com/ext/embed.html?id=850547079671600514" alt="Upload" class="w-full h-full object-cover rounded-lg" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'white\' stroke-width=\'2\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z\' /></svg>'">
-      </label>
+      <!-- BÊN TRÁI -->
+      <img src="icon-picture-upload.png" alt="Upload" class="w-full h-full object-cover rounded-lg">
 
       <!-- GIỮA: Tiêu đề -->
       <div class="flex-1">
@@ -35,10 +32,8 @@
         <p class="text-emerald-100 text-[10px] mt-0.5 opacity-90"></p>
       </div>
 
-      <!-- BÊN PHẢI: Nút ấn hình mã QR (Thay link Pinterest của bạn vào mục src) -->
-      <button type="button" onclick="toggleCamera()" class="p-1 bg-white/10 hover:bg-white/20 active:scale-95 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center w-11 h-11 overflow-hidden" title="Bật / Tắt Camera Quét">
-        <img src="https://assets.pinterest.com/ext/embed.html?id=850547079671600498" alt="QR Code" class="w-full h-full object-cover rounded-lg" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'white\' stroke-width=\'2\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M12 4v1m6 11h.01M9.21 18.57l.707.707M15.55 6.343l.707-.707M4.929 19.071l.707-.707M19.071 4.929l-.707.707M4 12h1m8-4a4 4 0 11-8 0 4 4 0 018 0z\' /><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M7 7h2v2H7V7zm8 0h2v2h-2V7zm0 8h2v2h-2v-2z\' /></svg>'">
-      </button>
+      <!-- BÊN PHẢI -->
+      <img src="icon-qr-scan.png" alt="QR Code" class="w-full h-full object-cover rounded-lg">
     </div>
 
     <div class="p-6 space-y-5">
