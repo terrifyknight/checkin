@@ -24,7 +24,10 @@
     <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 flex items-center justify-between text-center relative">
       
       <!-- BÊN TRÁI -->
-      <img src="icon-picture-upload.png" alt="Upload" class="w-full h-full object-cover rounded-lg">
+     <label for="uploadImageInput" role="button" class="cursor-pointer p-1 bg-white/10 hover:bg-white/20 active:scale-90 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center w-12 h-12 overflow-hidden block" title="Tải ảnh QR từ máy / Zalo">
+        <input type="file" id="uploadImageInput" accept="image/*" onchange="checkinByImage(event)" class="hidden" />
+        <img src="icon-picture-upload.png" alt="Upload" class="w-full h-full object-cover rounded-lg pointer-events-none">
+      </label>
 
       <!-- GIỮA: Tiêu đề -->
       <div class="flex-1">
@@ -33,8 +36,9 @@
       </div>
 
       <!-- BÊN PHẢI -->
-      <img src="icon-qr-scan.png" alt="QR Code" class="w-full h-full object-cover rounded-lg">
-    </div>
+     <button type="button" onclick="toggleCamera()" class="p-1 bg-white/10 hover:bg-white/20 active:scale-90 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center w-12 h-12 overflow-hidden focus:outline-none" title="Bật / Tắt Camera Quét">
+        <img src="icon-qr-scan.png" alt="QR Code" class="w-full h-full object-cover rounded-lg pointer-events-none">
+      </button>
 
     <div class="p-6 space-y-5">
       <!-- LỰA CHỌN NHÀ MÁY -->
