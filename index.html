@@ -20,25 +20,27 @@
 <body class="min-h-screen bg-slate-900 text-white p-2 sm:p-4 flex flex-col items-center justify-start">
 
   <div class="w-full max-w-md bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden mt-6">
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 flex items-center justify-between text-center relative">
+    <!-- Header chuẩn định dạng Flex-Row không lo bị vỡ tràn khung -->
+    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-4 flex items-center justify-between gap-2 relative">
       
-      <!-- BÊN TRÁI -->
-     <label for="uploadImageInput" role="button" class="cursor-pointer p-1 bg-white/10 hover:bg-white/20 active:scale-90 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center w-12 h-12 overflow-hidden block" title="Tải ảnh QR từ máy / Zalo">
+      <!-- BÊN TRÁI: Nút hình bức ảnh (Bấm để tải ảnh QR từ máy/Zalo) -->
+      <label class="cursor-pointer p-1 bg-white/10 hover:bg-white/20 active:scale-95 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] overflow-hidden" title="Tải ảnh QR từ máy / Zalo">
         <input type="file" id="uploadImageInput" accept="image/*" onchange="checkinByImage(event)" class="hidden" />
-        <img src="icon-picture-upload.png" alt="Upload" class="w-full h-full object-cover rounded-lg pointer-events-none">
+        <img src="icon-upload.png" alt="Upload" class="w-full h-full object-cover rounded-lg pointer-events-none" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'white\' stroke-width=\'2\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z\' /></svg>'">
       </label>
 
-      <!-- GIỮA: Tiêu đề -->
-      <div class="flex-1">
-        <h1 class="text-2xl font-black tracking-wider text-white">CHECKIN</h1>
-        <p class="text-emerald-100 text-[10px] mt-0.5 opacity-90"></p>
+      <!-- GIỮA: Tiêu đề CHECKIN -->
+      <div class="text-center flex-1 min-w-0">
+        <h1 class="text-xl font-black tracking-wider text-white select-none">CHECKIN</h1>
+        <p class="text-emerald-100 text-[9px] opacity-90 truncate select-none">Ảnh trái chọn file | Ảnh phải bật cam</p>
       </div>
 
-      <!-- BÊN PHẢI -->
-     <button type="button" onclick="toggleCamera()" class="p-1 bg-white/10 hover:bg-white/20 active:scale-90 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center w-12 h-12 overflow-hidden focus:outline-none" title="Bật / Tắt Camera Quét">
-        <img src="icon-qr-scan.png" alt="QR Code" class="w-full h-full object-cover rounded-lg pointer-events-none">
+      <!-- BÊN PHẢI: Nút ấn hình mã QR (Bấm để bật / tắt Camera) -->
+      <button type="button" onclick="toggleCamera()" class="p-1 bg-white/10 hover:bg-white/20 active:scale-95 rounded-xl transition-all border border-white/10 shadow-lg flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] overflow-hidden focus:outline-none" title="Bật / Tắt Camera Quét">
+        <img src="icon-qr.png" alt="QR Code" class="w-full h-full object-cover rounded-lg pointer-events-none" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'white\' stroke-width=\'2\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M12 4v1m6 11h.01M9.21 18.57l.707.707M15.55 6.343l.707-.707M4.929 19.071l.707-.707M19.071 4.929l-.707.707M4 12h1m8-4a4 4 0 11-8 0 4 4 0 018 0z\' /><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M7 7h2v2H7V7zm8 0h2v2h-2V7zm0 8h2v2h-2v-2z\' /></svg>'">
       </button>
+
+    </div>
 
     <div class="p-6 space-y-5">
       <!-- LỰA CHỌN NHÀ MÁY -->
@@ -67,8 +69,8 @@
       <div id="cameraContainer" class="w-full relative aspect-square rounded-2xl overflow-hidden bg-slate-950 hidden">
         <div id="qrReader" class="w-full h-full"></div>
         
-        <!-- Nút đổi cam chuyển xuống dưới góc phải thuận tay bấm bằng 1 ngón cái -->
-        <button id="btnSwitch" type="button" onclick="switchCamera()" class="absolute bottom-4 right-4 z-10 px-3 py-2 bg-slate-900/90 hover:bg-slate-850 border border-slate-600 rounded-xl text-xs font-semibold shadow-xl flex items-center gap-1 active:scale-95 transition-all text-white">
+        <!-- Nút đổi cam sát góc dưới bên phải -->
+        <button id="btnSwitch" type="button" onclick="switchCamera()" class="absolute bottom-4 right-4 z-10 px-3 py-2 bg-slate-900/90 hover:bg-slate-850 border border-slate-600 rounded-xl text-xs font-semibold shadow-xl flex items-center gap-1 active:scale-95 transition-all text-white hidden">
           Đổi Cam 🔄
         </button>
       </div>
@@ -153,16 +155,15 @@
       const config = {
         fps: 30,
         qrbox: function(viewfinderWidth, viewfinderHeight) {
-          // Tính khung quét mờ vuông vắn tỉ lệ 1:1 cân đối theo kích thước thực tế
           const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-          const boxSize = Math.floor(minEdge * 0.65); // Thu nhỏ nhẹ khung trung tâm giúp nhận diện nét hơn
+          const boxSize = Math.floor(minEdge * 0.65); 
           return { width: boxSize, height: boxSize };
         },
         videoConstraints: {
           deviceId: { exact: cameraId },
           width: { ideal: 1080 },
           height: { ideal: 1080 },
-          aspectRatio: 1.0 // Yêu cầu luồng camera lấy khung vuông
+          aspectRatio: 1.0 
         }
       };
 
@@ -282,23 +283,19 @@
         });
     }
 
+    // LUỒNG QUÉT LIÊN TỤC KHÔNG TẮT CAM ĐỂ PHỤC VỤ HÀNG LOẠT
     function processQrData(rawText) {
-  if (html5QrCode && isCamOpen) {
-    // KHÔNG gọi stopCamera() ở đây nữa để giữ camera luôn mở quét liên tục
-    const parts = rawText.split('|');
-    const cccd = (parts.length >= 1) ? parts[0].trim() : "";
-    
-    if (cccd.length === 12) {
-      // Bíp nhẹ hoặc rung một cái nếu thiết bị hỗ trợ để bảo vệ biết đã ăn mã
-      if (navigator.vibrate) navigator.vibrate(100);
-      
-      // Gọi luồng gửi API xử lý kiểm tra (hoặc đẩy vào mảng trung gian nếu bạn chạy luồng gom lô)
-      executeAttendanceApi(cccd);
-    } else {
-      showResultModal(false, "Lỗi Mã QR", "Mã QR không đúng định dạng CCCD.");
+      if (html5QrCode && isCamOpen) {
+        const parts = rawText.split('|');
+        const cccd = (parts.length >= 1) ? parts[0].trim() : "";
+        if (cccd.length === 12) {
+          if (navigator.vibrate) navigator.vibrate(100); // Rung nhẹ báo quét trúng
+          executeAttendanceApi(cccd);
+        } else {
+          showResultModal(false, "Lỗi Mã QR", "Mã QR quét được không phải định dạng thẻ CCCD gắn chíp hợp lệ.");
+        }
+      }
     }
-  }
-}
 
     function submitManualAttendance() {
       if (!factorySelect.value) { alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh!"); return; }
@@ -319,8 +316,13 @@
       })
       .then(res => res.json())
       .then(data => {
-        if (data && data.success) { showResultModal(true, "Thành Công", data.message); }
-        else { showResultModal(false, "Thất Bại", data.message); }
+        if (data && data.success) { 
+          showResultModal(true, "Thành Công", data.message); 
+          // Tự động tắt bảng thông báo thành công sau 1.5 giây để bảo vệ tiếp tục quét người sau luôn
+          setTimeout(() => { closeModal(); }, 1500);
+        } else { 
+          showResultModal(false, "Thất Bại", data.message); 
+        }
       })
       .catch(err => { showResultModal(false, "Lỗi Kết Nối", "Không thể hoàn thành điểm danh do mất tín hiệu đường truyền Internet."); });
     }
