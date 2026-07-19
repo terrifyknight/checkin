@@ -328,27 +328,31 @@
     }
 
     function showResultModal(isSuccess, title, msg) {
-      const modalIcon = document.getElementById('modalIcon');
-      const modalBox = document.getElementById('modalBox');
-      
-      if (isSuccess && title !== "⏳ Đang kiểm tra" && title !== "⏳ Đang quét ảnh") {
-        modalIcon.innerText = "✓";
-        modalIcon.className = "w-16 h-16 bg-emerald-900/50 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl border border-emerald-500";
-        modalBox.className = "bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-emerald-500/50 shadow-2xl";
-      } else if (title.indexOf("⏳") !== -1) {
-        modalIcon.innerText = "⏳";
-        modalIcon.className = "w-16 h-16 bg-amber-900/50 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl border border-amber-500";
-        modalBox.className = "bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-amber-500/50 shadow-2xl";
-      } else {
-        modalIcon.innerText = "✕";
-        modalIcon.className = "w-16 h-16 bg-red-900/50 text-red-400 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl border border-red-500";
-        modalBox.className = "bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-red-500/50 shadow-2xl";
-      }
-      
-      document.getElementById('modalTitle').innerText = title;
-      document.getElementById('modalMsg').innerText = msg;
-      document.getElementById('resultModal').classList.remove('hidden');
-    }
+  const modalIcon = document.getElementById('modalIcon');
+  const modalBox = document.getElementById('modalBox');
+  
+  // KIỂM TRA CHUẨN TRẠNG THÁI ĐỂ HÀNG LOẠT KHÔNG BỊ NHẦM LẪN Màu SẮC
+  if (title.indexOf("⏳") !== -1) {
+    // Trạng thái đang xử lý (Màu Vàng)
+    modalIcon.innerText = "⏳";
+    modalIcon.className = "w-16 h-16 bg-amber-900/50 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl border border-amber-500";
+    modalBox.className = "bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-amber-500/50 shadow-2xl";
+  } else if (isSuccess === true && title === "Thành Công") {
+    // Điểm danh thành công thực sự (Màu Xanh)
+    modalIcon.innerText = "✓";
+    modalIcon.className = "w-16 h-16 bg-emerald-900/50 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl border border-emerald-500";
+    modalBox.className = "bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-emerald-500/50 shadow-2xl";
+  } else {
+    // Báo lỗi ứng viên không có, trùng lặp, hoặc mất mạng (Màu Đỏ)
+    modalIcon.innerText = "✕";
+    modalIcon.className = "w-16 h-16 bg-red-900/50 text-red-400 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl border border-red-500";
+    modalBox.className = "bg-slate-800 rounded-3xl p-6 w-full max-w-sm text-center border border-red-500/50 shadow-2xl";
+  }
+  
+  document.getElementById('modalTitle').innerText = title;
+  document.getElementById('modalMsg').innerText = msg;
+  document.getElementById('resultModal').classList.remove('hidden');
+}
 
     function closeModal() {
       document.getElementById('resultModal').classList.add('hidden');
