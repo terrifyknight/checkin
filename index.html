@@ -283,18 +283,22 @@
     }
 
     function processQrData(rawText) {
-      if (html5QrCode && isCamOpen) {
-        stopCamera().then(() => {
-          const parts = rawText.split('|');
-          const cccd = (parts.length >= 1) ? parts[0].trim() : "";
-          if (cccd.length === 12) {
-            executeAttendanceApi(cccd);
-          } else {
-            showResultModal(false, "Lỗi Mã QR", "Mã QR quét được không phải định dạng thẻ CCCD gắn chíp hợp lệ.");
-          }
-        });
-      }
+  if (html5QrCode && isCamOpen) {
+    // KHÔNG gọi stopCamera() ở đây nữa để giữ camera luôn mở quét liên tục
+    const parts = rawText.split('|');
+    const cccd = (parts.length >= 1) ? parts[0].trim() : "";
+    
+    if (cccd.length === 12) {
+      // Bíp nhẹ hoặc rung một cái nếu thiết bị hỗ trợ để bảo vệ biết đã ăn mã
+      if (navigator.vibrate) navigator.vibrate(100);
+      
+      // Gọi luồng gửi API xử lý kiểm tra (hoặc đẩy vào mảng trung gian nếu bạn chạy luồng gom lô)
+      executeAttendanceApi(cccd);
+    } else {
+      showResultModal(false, "Lỗi Mã QR", "Mã QR không đúng định dạng CCCD.");
     }
+  }
+}
 
     function submitManualAttendance() {
       if (!factorySelect.value) { alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh!"); return; }
