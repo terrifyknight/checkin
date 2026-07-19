@@ -76,11 +76,8 @@
 
     let html5QrCode = null;
     let isCamOpen = false;
-    let videoDevices = [];
-    let currentDeviceIndex = 0;
     const factorySelect = document.getElementById('factoryCode');
 
-    // Hàm khởi động hoặc tắt Camera
     function toggleCamera() {
       if (!factorySelect.value) {
         alert("⚠️ Vui lòng chọn Nhà máy thực hiện điểm danh trước khi mở Camera!");
@@ -89,88 +86,69 @@
       
       const btnCam = document.getElementById('btnCam');
       if (!isCamOpen) {
-        // Bước 1: Xin quyền và quét danh sách tất cả camera có trên thiết bị
-        Html5Qrcode.getCameras().then(devices => {
-          if (devices && devices.length > 0) {
-            videoDevices = devices;
-            // Ưu tiên chọn camera cuối danh sách vì thường camera chính/cam sau nằm ở cuối
-            currentDeviceIndex = devices.length - 1; 
-            startScanning(videoDevices[currentDeviceIndex].id);
-          } else {
-            alert("Không tìm thấy camera nào trên thiết bị này.");
-          }
-        }).catch(err => {
-          alert("Lỗi truy cập danh sách camera: " + err);
-        });
-      } else { 
-        stopCamera(); 
-      }
-    }
-
-    // Hàm kích hoạt quét trên một Camera cụ thể
-    function startScanning(cameraId) {
-      const btnCam = document.getElementById('btnCam');
-      
-      // Nếu đang mở cam khác thì tắt đi trước khi chuyển
-      if (html5QrCode) {
-        html5QrCode.clear();
-      }
-
-      html5QrCode = new Html5Qrcode("qrReader");
-      html5QrCode.start(
-        cameraId, 
-        { 
-          fps: 30, 
+        if (!html5QrCode) {
+          html5QrCode = new Html5Qrcode("qrReader");
+        }
+        
+        // Cấu hình ép buộc sử dụng camera sau chính xác và lấy độ phân giải nét cao
+        const config = {
+          fps: 30,
           qrbox: 180,
-          // Bổ sung cấu hình ép độ phân giải cao để nhìn rõ mã QR nhỏ
           videoConstraints: {
+            // facingMode: "environment" đảm bảo LUÔN LUÔN lấy camera sau, không bị nhảy về camera trước
+            facingMode: { exact: "environment" }, 
             width: { ideal: 1920 },
             height: { ideal: 1080 }
           }
-        }, 
-        (rawText) => { processQrData(rawText); }, 
-        (err) => {}
-      ).then(() => { 
-        isCamOpen = true; 
-        // Đổi tên nút thành "Đổi Camera" để người dùng bấm chuyển ống kính nếu bị mờ
-        btnCam.innerText = "Đổi Camera (Quét tiếp)";
-        btnCam.classList.replace('bg-slate-700', 'bg-blue-600');
-        btnCam.onclick = switchCamera; // Chuyển chức năng nút thành đổi camera
-      }).catch(err => {
-        alert("Không thể khởi động camera được chọn: " + err);
-      });
-    }
+        };
 
-    // Hàm chuyển đổi qua lại giữa các camera khi bấm nút
-    function switchCamera() {
-      if (videoDevices.length <= 1) {
-        alert("Thiết bị này chỉ nhận diện được 1 camera sau.");
-        return;
+        html5QrCode.start(
+          { facingMode: { exact: "environment" } }, // Ép phần cứng mở cụm camera sau
+          config,
+          (rawText) => { processQrData(rawText); },
+          (err) => {}
+        ).then(() => {
+          isCamOpen = true;
+          btnCam.innerText = "Tắt Camera Điểm Danh";
+          btnCam.classList.replace('bg-slate-700', 'bg-red-600');
+        }).catch(err => {
+          // Trường hợp máy không hỗ trợ cú pháp nghiêm ngặt "exact", chuyển sang chế độ ưu tiên thông thường
+          console.log("Thử lại với cấu hình fallback...");
+          html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 30, qrbox: 180 },
+            (rawText) => { processQrData(rawText); },
+            (err) => {}
+          ).then(() => {
+            isCamOpen = true;
+            btnCam.innerText = "Tắt Camera Điểm Danh";
+            btnCam.classList.replace('bg-slate-700', 'bg-red-600');
+          }).catch(e => alert("Không thể khởi động camera sau: " + e));
+        });
+
+      } else {
+        stopCamera();
       }
-      // Vòng lặp chuyển sang camera tiếp theo trong danh sách
-      currentDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
-      startScanning(videoDevices[currentDeviceIndex].id);
     }
 
     function stopCamera() {
       const btnCam = document.getElementById('btnCam');
       if (html5QrCode && isCamOpen) {
-        html5QrCode.stop().then(() => { 
-          isCamOpen = false; 
+        html5QrCode.stop().then(() => {
+          isCamOpen = false;
           btnCam.innerText = "Bật Camera Điểm Danh";
-          btnCam.classList.replace('bg-blue-600', 'bg-slate-700');
           btnCam.classList.replace('bg-red-600', 'bg-slate-700');
-          btnCam.onclick = toggleCamera; // Trả lại chức năng bật/tắt ban đầu
-        });
+        }).catch(err => console.log("Lỗi dừng camera: " + err));
       }
     }
 
     function processQrData(rawText) {
-      // Khi quét trúng thì tạm thời tắt hẳn camera để xử lý dữ liệu
       if (html5QrCode && isCamOpen) {
         html5QrCode.stop().then(() => {
           isCamOpen = false;
-          resetCamButton();
+          const btnCam = document.getElementById('btnCam');
+          btnCam.innerText = "Bật Camera Điểm Danh";
+          btnCam.className = "mt-4 px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm font-medium transition-all";
           
           const parts = rawText.split('|');
           const cccd = (parts.length >= 1) ? parts[0].trim() : "";
@@ -179,15 +157,8 @@
           } else {
             showResultModal(false, "Lỗi Mã QR", "Mã QR quét được không phải định dạng thẻ CCCD gắn chíp hợp lệ.");
           }
-        });
+        }).catch(err => console.log(err));
       }
-    }
-
-    function resetCamButton() {
-      const btnCam = document.getElementById('btnCam');
-      btnCam.innerText = "Bật Camera Điểm Danh";
-      btnCam.className = "mt-4 px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm font-medium transition-all";
-      btnCam.onclick = toggleCamera;
     }
 
     function submitManualAttendance() {
@@ -251,7 +222,9 @@
 
     function closeModal() {
       document.getElementById('resultModal').classList.add('hidden');
-      resetCamButton();
+      const btnCam = document.getElementById('btnCam');
+      btnCam.innerText = "Bật Camera Điểm Danh";
+      btnCam.className = "mt-4 px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm font-medium transition-all";
     }
   </script>
 </body>
